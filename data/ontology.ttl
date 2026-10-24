@@ -1,0 +1,40 @@
+@prefix ph: <https://pharmagraph.example/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ph: a owl:Ontology ; rdfs:label "PharmaGraph — ontologie pédagogique fictive"@fr ; rdfs:comment "Toutes les molécules, relations et données cliniques sont synthétiques. Ne pas utiliser à des fins médicales."@fr .
+ph:EntiteSante a owl:Class .
+ph:Molecule a owl:Class ; rdfs:subClassOf ph:EntiteSante, [ a owl:Restriction ; owl:onProperty ph:formule ; owl:cardinality "1"^^xsd:nonNegativeInteger ] ; owl:disjointWith ph:EffetSecondaire, ph:ContreIndication, ph:EssaiClinique .
+ph:EffetSecondaire a owl:Class ; rdfs:subClassOf ph:EntiteSante .
+ph:ContreIndication a owl:Class ; rdfs:subClassOf ph:EntiteSante .
+ph:EssaiClinique a owl:Class ; rdfs:subClassOf ph:EntiteSante .
+ph:MoleculeAvecRisque a owl:Class ; owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( ph:Molecule [ a owl:Restriction ; owl:onProperty ph:aContreIndication ; owl:someValuesFrom ph:ContreIndication ] ) ] .
+ph:aEffetSecondaire a owl:ObjectProperty ; rdfs:domain ph:Molecule ; rdfs:range ph:EffetSecondaire ; owl:inverseOf ph:effetDe .
+ph:effetDe a owl:ObjectProperty ; rdfs:domain ph:EffetSecondaire ; rdfs:range ph:Molecule .
+ph:aContreIndication a owl:ObjectProperty ; rdfs:domain ph:Molecule ; rdfs:range ph:ContreIndication .
+ph:etudieDans a owl:ObjectProperty ; rdfs:domain ph:Molecule ; rdfs:range ph:EssaiClinique .
+ph:interagitAvec a owl:ObjectProperty, owl:SymmetricProperty ; rdfs:domain ph:Molecule ; rdfs:range ph:Molecule .
+ph:formule a owl:DatatypeProperty, owl:FunctionalProperty ; rdfs:domain ph:Molecule ; rdfs:range xsd:string .
+ph:phase a owl:DatatypeProperty ; rdfs:domain ph:EssaiClinique ; rdfs:range xsd:integer .
+ph:participants a owl:DatatypeProperty ; rdfs:domain ph:EssaiClinique ; rdfs:range xsd:integer .
+ph:statut a owl:DatatypeProperty ; rdfs:domain ph:EssaiClinique ; rdfs:range xsd:string .
+ph:frequence a owl:DatatypeProperty ; rdfs:domain ph:EffetSecondaire ; rdfs:range xsd:string .
+
+ph:Alpha a ph:Molecule ; rdfs:label "Molécule Alpha"@fr ; ph:formule "C10H12O3" ; ph:aEffetSecondaire ph:Nausees, ph:Vertiges ; ph:aContreIndication ph:Grossesse ; ph:etudieDans ph:EssaiA ; ph:interagitAvec ph:Beta .
+ph:Beta a ph:Molecule ; rdfs:label "Molécule Bêta"@fr ; ph:formule "C12H15N3" ; ph:aEffetSecondaire ph:Somnolence ; ph:aContreIndication ph:InsuffisanceRenale ; ph:etudieDans ph:EssaiB .
+ph:Gamma a ph:Molecule ; rdfs:label "Molécule Gamma"@fr ; ph:formule "C8H9NO2" ; ph:aEffetSecondaire ph:Nausees ; ph:aContreIndication ph:Allergie ; ph:etudieDans ph:EssaiA .
+ph:Delta a ph:Molecule ; rdfs:label "Molécule Delta"@fr ; ph:formule "C14H18O4" ; ph:aEffetSecondaire ph:Vertiges ; ph:etudieDans ph:EssaiC .
+ph:Epsilon a ph:Molecule ; rdfs:label "Molécule Epsilon"@fr ; ph:formule "C9H11N2O" ; ph:aEffetSecondaire ph:Somnolence, ph:Secheresse ; ph:aContreIndication ph:Grossesse, ph:Allergie ; ph:etudieDans ph:EssaiB .
+ph:Zeta a ph:Molecule ; rdfs:label "Molécule Zêta"@fr ; ph:formule "C11H14O2" ; ph:aEffetSecondaire ph:Secheresse ; ph:etudieDans ph:EssaiC .
+ph:Nausees a ph:EffetSecondaire ; rdfs:label "Nausées"@fr ; ph:frequence "Fréquent (fictif)" .
+ph:Vertiges a ph:EffetSecondaire ; rdfs:label "Vertiges"@fr ; ph:frequence "Rare (fictif)" .
+ph:Somnolence a ph:EffetSecondaire ; rdfs:label "Somnolence"@fr ; ph:frequence "Fréquent (fictif)" .
+ph:Secheresse a ph:EffetSecondaire ; rdfs:label "Sécheresse buccale"@fr ; ph:frequence "Rare (fictif)" .
+ph:Grossesse a ph:ContreIndication ; rdfs:label "Grossesse"@fr .
+ph:InsuffisanceRenale a ph:ContreIndication ; rdfs:label "Insuffisance rénale"@fr .
+ph:Allergie a ph:ContreIndication ; rdfs:label "Allergie"@fr .
+ph:EssaiA a ph:EssaiClinique ; rdfs:label "Étude Aurore (fictive)"@fr ; ph:phase 2 ; ph:participants 120 ; ph:statut "En cours" .
+ph:EssaiB a ph:EssaiClinique ; rdfs:label "Étude Horizon (fictive)"@fr ; ph:phase 3 ; ph:participants 340 ; ph:statut "Terminée" .
+ph:EssaiC a ph:EssaiClinique ; rdfs:label "Étude Atlas (fictive)"@fr ; ph:phase 1 ; ph:participants 48 ; ph:statut "En cours" .

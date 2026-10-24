@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:owl="http://www.w3.org/2002/07/owl#"
+   xmlns:ph="https://pharmagraph.example/ontology#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#aContreIndication">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="https://pharmagraph.example/ontology#Molecule"/>
+    <rdfs:range rdf:resource="https://pharmagraph.example/ontology#ContreIndication"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#Grossesse">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#ContreIndication"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Grossesse</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
+    <rdfs:label xml:lang="fr">PharmaGraph — ontologie pédagogique fictive</rdfs:label>
+    <rdfs:comment xml:lang="fr">Toutes les molécules, relations et données cliniques sont synthétiques. Ne pas utiliser à des fins médicales.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#MoleculeAvecRisque">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <owl:equivalentClass rdf:nodeID="n89502fe28b3f47669f159ceca738eb5cb2"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n89502fe28b3f47669f159ceca738eb5cb4">
+    <rdf:first rdf:resource="https://pharmagraph.example/ontology#Molecule"/>
+    <rdf:rest rdf:nodeID="n89502fe28b3f47669f159ceca738eb5cb5"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#EssaiA">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#EssaiClinique"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Étude Aurore (fictive)</rdfs:label>
+    <ph:phase rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">2</ph:phase>
+    <ph:participants rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">120</ph:participants>
+    <ph:statut>En cours</ph:statut>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#aEffetSecondaire">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="https://pharmagraph.example/ontology#Molecule"/>
+    <rdfs:range rdf:resource="https://pharmagraph.example/ontology#EffetSecondaire"/>
+    <owl:inverseOf rdf:resource="https://pharmagraph.example/ontology#effetDe"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#Alpha">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#Molecule"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Molécule Alpha</rdfs:label>
+    <ph:formule>C10H12O3</ph:formule>
+    <ph:aEffetSecondaire rdf:resource="https://pharmagraph.example/ontology#Nausees"/>
+    <ph:aEffetSecondaire rdf:resource="https://pharmagraph.example/ontology#Vertiges"/>
+    <ph:aContreIndication rdf:resource="https://pharmagraph.example/ontology#Grossesse"/>
+    <ph:etudieDans rdf:resource="https://pharmagraph.example/ontology#EssaiA"/>
+    <ph:interagitAvec rdf:resource="https://pharmagraph.example/ontology#Beta"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n89502fe28b3f47669f159ceca738eb5cb5">
+    <rdf:first rdf:nodeID="n89502fe28b3f47669f159ceca738eb5cb3"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#EntiteSante">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#EssaiC">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#EssaiClinique"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Étude Atlas (fictive)</rdfs:label>
+    <ph:phase rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</ph:phase>
+    <ph:participants rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">48</ph:participants>
+    <ph:statut>En cours</ph:statut>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#Delta">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#Molecule"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Molécule Delta</rdfs:label>
+    <ph:formule>C14H18O4</ph:formule>
+    <ph:aEffetSecondaire rdf:resource="https://pharmagraph.example/ontology#Vertiges"/>
+    <ph:etudieDans rdf:resource="https://pharmagraph.example/ontology#EssaiC"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#Zeta">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#Molecule"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Molécule Zêta</rdfs:label>
+    <ph:formule>C11H14O2</ph:formule>
+    <ph:aEffetSecondaire rdf:resource="https://pharmagraph.example/ontology#Secheresse"/>
+    <ph:etudieDans rdf:resource="https://pharmagraph.example/ontology#EssaiC"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#Gamma">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#Molecule"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Molécule Gamma</rdfs:label>
+    <ph:formule>C8H9NO2</ph:formule>
+    <ph:aEffetSecondaire rdf:resource="https://pharmagraph.example/ontology#Nausees"/>
+    <ph:aContreIndication rdf:resource="https://pharmagraph.example/ontology#Allergie"/>
+    <ph:etudieDans rdf:resource="https://pharmagraph.example/ontology#EssaiA"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#EssaiB">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#EssaiClinique"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Étude Horizon (fictive)</rdfs:label>
+    <ph:phase rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</ph:phase>
+    <ph:participants rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">340</ph:participants>
+    <ph:statut>Terminée</ph:statut>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#ContreIndication">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="https://pharmagraph.example/ontology#EntiteSante"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#frequence">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="https://pharmagraph.example/ontology#EffetSecondaire"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#Epsilon">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#Molecule"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Molécule Epsilon</rdfs:label>
+    <ph:formule>C9H11N2O</ph:formule>
+    <ph:aEffetSecondaire rdf:resource="https://pharmagraph.example/ontology#Somnolence"/>
+    <ph:aEffetSecondaire rdf:resource="https://pharmagraph.example/ontology#Secheresse"/>
+    <ph:aContreIndication rdf:resource="https://pharmagraph.example/ontology#Grossesse"/>
+    <ph:aContreIndication rdf:resource="https://pharmagraph.example/ontology#Allergie"/>
+    <ph:etudieDans rdf:resource="https://pharmagraph.example/ontology#EssaiB"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#Molecule">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="https://pharmagraph.example/ontology#EntiteSante"/>
+    <rdfs:subClassOf rdf:nodeID="n89502fe28b3f47669f159ceca738eb5cb1"/>
+    <owl:disjointWith rdf:resource="https://pharmagraph.example/ontology#EffetSecondaire"/>
+    <owl:disjointWith rdf:resource="https://pharmagraph.example/ontology#ContreIndication"/>
+    <owl:disjointWith rdf:resource="https://pharmagraph.example/ontology#EssaiClinique"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#interagitAvec">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+    <rdfs:domain rdf:resource="https://pharmagraph.example/ontology#Molecule"/>
+    <rdfs:range rdf:resource="https://pharmagraph.example/ontology#Molecule"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#InsuffisanceRenale">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#ContreIndication"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Insuffisance rénale</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#participants">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="https://pharmagraph.example/ontology#EssaiClinique"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#etudieDans">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="https://pharmagraph.example/ontology#Molecule"/>
+    <rdfs:range rdf:resource="https://pharmagraph.example/ontology#EssaiClinique"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#formule">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="https://pharmagraph.example/ontology#Molecule"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#statut">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="https://pharmagraph.example/ontology#EssaiClinique"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#EffetSecondaire">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="https://pharmagraph.example/ontology#EntiteSante"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#Beta">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#Molecule"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Molécule Bêta</rdfs:label>
+    <ph:formule>C12H15N3</ph:formule>
+    <ph:aEffetSecondaire rdf:resource="https://pharmagraph.example/ontology#Somnolence"/>
+    <ph:aContreIndication rdf:resource="https://pharmagraph.example/ontology#InsuffisanceRenale"/>
+    <ph:etudieDans rdf:resource="https://pharmagraph.example/ontology#EssaiB"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#Somnolence">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#EffetSecondaire"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Somnolence</rdfs:label>
+    <ph:frequence>Fréquent (fictif)</ph:frequence>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#Secheresse">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#EffetSecondaire"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Sécheresse buccale</rdfs:label>
+    <ph:frequence>Rare (fictif)</ph:frequence>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#Vertiges">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#EffetSecondaire"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Vertiges</rdfs:label>
+    <ph:frequence>Rare (fictif)</ph:frequence>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#Allergie">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#ContreIndication"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Allergie</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#EssaiClinique">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="https://pharmagraph.example/ontology#EntiteSante"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#phase">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="https://pharmagraph.example/ontology#EssaiClinique"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#effetDe">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="https://pharmagraph.example/ontology#EffetSecondaire"/>
+    <rdfs:range rdf:resource="https://pharmagraph.example/ontology#Molecule"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n89502fe28b3f47669f159ceca738eb5cb3">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="https://pharmagraph.example/ontology#aContreIndication"/>
+    <owl:someValuesFrom rdf:resource="https://pharmagraph.example/ontology#ContreIndication"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://pharmagraph.example/ontology#Nausees">
+    <rdf:type rdf:resource="https://pharmagraph.example/ontology#EffetSecondaire"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdfs:label xml:lang="fr">Nausées</rdfs:label>
+    <ph:frequence>Fréquent (fictif)</ph:frequence>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n89502fe28b3f47669f159ceca738eb5cb1">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="https://pharmagraph.example/ontology#formule"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n89502fe28b3f47669f159ceca738eb5cb2">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <owl:intersectionOf rdf:nodeID="n89502fe28b3f47669f159ceca738eb5cb4"/>
+  </rdf:Description>
+</rdf:RDF>

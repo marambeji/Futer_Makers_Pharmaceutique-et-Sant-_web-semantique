@@ -1,0 +1,106 @@
+@prefix ph: <https://pharmagraph.example/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ph:ClinicalExtension a owl:NamedIndividual ; rdfs:label "Version des données cliniques synthétiques"@fr ; owl:versionInfo "2.0" .
+ph:Personne a owl:Class ; rdfs:subClassOf ph:EntiteSante ; rdfs:label "Personne"@fr .
+ph:Patient a owl:Class ; rdfs:subClassOf ph:Personne ; rdfs:label "Patient"@fr ; owl:disjointWith ph:Medicament, ph:Hopital, ph:Vehicule .
+ph:Medecin a owl:Class ; rdfs:subClassOf ph:Personne ; rdfs:label "Médecin"@fr .
+ph:Consultation a owl:Class ; rdfs:subClassOf ph:EntiteSante ; rdfs:label "Consultation"@fr ; rdfs:subClassOf [ a owl:Restriction ; owl:onProperty ph:concernePatient ; owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ; owl:onClass ph:Patient ], [ a owl:Restriction ; owl:onProperty ph:realiseePar ; owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ; owl:onClass ph:Medecin ] .
+ph:RendezVous a owl:Class ; rdfs:subClassOf ph:EntiteSante ; rdfs:label "Rendez-vous"@fr .
+ph:Maladie a owl:Class ; rdfs:subClassOf ph:EntiteSante ; rdfs:label "Maladie"@fr .
+ph:Traitement a owl:Class ; rdfs:subClassOf ph:EntiteSante ; rdfs:label "Traitement"@fr .
+ph:Medicament a owl:Class ; rdfs:subClassOf ph:EntiteSante ; rdfs:label "Médicament"@fr .
+ph:Prescription a owl:Class ; rdfs:subClassOf ph:EntiteSante ; rdfs:label "Prescription"@fr .
+ph:Hopital a owl:Class ; rdfs:subClassOf ph:EntiteSante ; rdfs:label "Hôpital"@fr .
+ph:Service a owl:Class ; rdfs:subClassOf ph:EntiteSante ; rdfs:label "Service hospitalier"@fr .
+ph:Assurance a owl:Class ; rdfs:subClassOf ph:EntiteSante ; rdfs:label "Assurance"@fr .
+ph:Vehicule a owl:Class ; rdfs:subClassOf ph:EntiteSante ; rdfs:label "Véhicule"@fr .
+
+ph:suitPar a owl:ObjectProperty ; rdfs:label "suivi par"@fr ; rdfs:domain ph:Patient ; rdfs:range ph:Medecin ; owl:inverseOf ph:suitPatient .
+ph:suitPatient a owl:ObjectProperty ; rdfs:domain ph:Medecin ; rdfs:range ph:Patient .
+ph:souffreDe a owl:ObjectProperty ; rdfs:domain ph:Patient ; rdfs:range ph:Maladie .
+ph:prendMedicament a owl:ObjectProperty ; rdfs:domain ph:Patient ; rdfs:range ph:Medicament .
+ph:possedeVehicule a owl:ObjectProperty ; rdfs:domain ph:Patient ; rdfs:range ph:Vehicule .
+ph:assurePar a owl:ObjectProperty ; rdfs:domain ph:Patient ; rdfs:range ph:Assurance .
+ph:accueilliDans a owl:ObjectProperty ; rdfs:domain ph:Patient ; rdfs:range ph:Hopital .
+ph:travailleDans a owl:ObjectProperty ; rdfs:domain ph:Medecin ; rdfs:range ph:Hopital .
+ph:appartientService a owl:ObjectProperty ; rdfs:domain ph:Medecin ; rdfs:range ph:Service .
+ph:serviceDe a owl:ObjectProperty, owl:FunctionalProperty ; rdfs:domain ph:Service ; rdfs:range ph:Hopital .
+ph:concernePatient a owl:ObjectProperty, owl:FunctionalProperty ; rdfs:domain ph:Consultation ; rdfs:range ph:Patient .
+ph:realiseePar a owl:ObjectProperty, owl:FunctionalProperty ; rdfs:domain ph:Consultation ; rdfs:range ph:Medecin .
+ph:diagnostique a owl:ObjectProperty ; rdfs:domain ph:Consultation ; rdfs:range ph:Maladie .
+ph:proposeTraitement a owl:ObjectProperty ; rdfs:domain ph:Consultation ; rdfs:range ph:Traitement .
+ph:traiteMaladie a owl:ObjectProperty ; rdfs:domain ph:Traitement ; rdfs:range ph:Maladie .
+ph:inclutMedicament a owl:ObjectProperty ; rdfs:domain ph:Traitement ; rdfs:range ph:Medicament .
+ph:contientMolecule a owl:ObjectProperty ; rdfs:domain ph:Medicament ; rdfs:range ph:Molecule .
+ph:prescritA a owl:ObjectProperty, owl:FunctionalProperty ; rdfs:domain ph:Prescription ; rdfs:range ph:Patient .
+ph:prescritPar a owl:ObjectProperty, owl:FunctionalProperty ; rdfs:domain ph:Prescription ; rdfs:range ph:Medecin .
+ph:prescritMedicament a owl:ObjectProperty ; rdfs:domain ph:Prescription ; rdfs:range ph:Medicament .
+ph:issueConsultation a owl:ObjectProperty, owl:FunctionalProperty ; rdfs:domain ph:Prescription ; rdfs:range ph:Consultation .
+ph:rdvPatient a owl:ObjectProperty, owl:FunctionalProperty ; rdfs:domain ph:RendezVous ; rdfs:range ph:Patient .
+ph:rdvMedecin a owl:ObjectProperty, owl:FunctionalProperty ; rdfs:domain ph:RendezVous ; rdfs:range ph:Medecin .
+
+ph:age a owl:DatatypeProperty, owl:FunctionalProperty ; rdfs:domain ph:Patient ; rdfs:range xsd:integer .
+ph:sexe a owl:DatatypeProperty, owl:FunctionalProperty ; rdfs:domain ph:Patient ; rdfs:range xsd:string .
+ph:specialite a owl:DatatypeProperty, owl:FunctionalProperty ; rdfs:domain ph:Medecin ; rdfs:range xsd:string .
+ph:dateConsultation a owl:DatatypeProperty, owl:FunctionalProperty ; rdfs:domain ph:Consultation ; rdfs:range xsd:date .
+ph:cout a owl:DatatypeProperty, owl:FunctionalProperty ; rdfs:domain ph:Consultation ; rdfs:range xsd:decimal .
+ph:datePrescription a owl:DatatypeProperty, owl:FunctionalProperty ; rdfs:domain ph:Prescription ; rdfs:range xsd:date .
+ph:dureeJours a owl:DatatypeProperty, owl:FunctionalProperty ; rdfs:domain ph:Prescription ; rdfs:range xsd:integer .
+ph:dateRdv a owl:DatatypeProperty, owl:FunctionalProperty ; rdfs:domain ph:RendezVous ; rdfs:range xsd:date .
+ph:statutRdv a owl:DatatypeProperty, owl:FunctionalProperty ; rdfs:domain ph:RendezVous ; rdfs:range xsd:string .
+ph:ville a owl:DatatypeProperty ; rdfs:domain ph:Hopital ; rdfs:range xsd:string .
+ph:forme a owl:DatatypeProperty ; rdfs:domain ph:Medicament ; rdfs:range xsd:string .
+ph:posologie a owl:DatatypeProperty ; rdfs:domain ph:Traitement ; rdfs:range xsd:string .
+ph:couverture a owl:DatatypeProperty ; rdfs:domain ph:Assurance ; rdfs:range xsd:decimal .
+ph:marque a owl:DatatypeProperty ; rdfs:domain ph:Vehicule ; rdfs:range xsd:string .
+
+ph:HopitalCarthage a ph:Hopital, owl:NamedIndividual ; rdfs:label "Hôpital Carthage"@fr ; ph:ville "Tunis" .
+ph:HopitalJasmin a ph:Hopital, owl:NamedIndividual ; rdfs:label "Hôpital Jasmin"@fr ; ph:ville "Sousse" .
+ph:Cardiologie a ph:Service, owl:NamedIndividual ; rdfs:label "Service Cardiologie"@fr ; ph:serviceDe ph:HopitalCarthage .
+ph:Endocrinologie a ph:Service, owl:NamedIndividual ; rdfs:label "Service Endocrinologie"@fr ; ph:serviceDe ph:HopitalCarthage .
+ph:MedecineGenerale a ph:Service, owl:NamedIndividual ; rdfs:label "Service Médecine générale"@fr ; ph:serviceDe ph:HopitalJasmin .
+ph:Ahmed a ph:Medecin, owl:NamedIndividual ; rdfs:label "Docteur Ahmed"@fr ; ph:specialite "Endocrinologie" ; ph:travailleDans ph:HopitalCarthage ; ph:appartientService ph:Endocrinologie .
+ph:Leila a ph:Medecin, owl:NamedIndividual ; rdfs:label "Docteur Leïla"@fr ; ph:specialite "Cardiologie" ; ph:travailleDans ph:HopitalCarthage ; ph:appartientService ph:Cardiologie .
+ph:Sami a ph:Medecin, owl:NamedIndividual ; rdfs:label "Docteur Sami"@fr ; ph:specialite "Médecine générale" ; ph:travailleDans ph:HopitalJasmin ; ph:appartientService ph:MedecineGenerale .
+ph:Diabete a ph:Maladie, owl:NamedIndividual ; rdfs:label "Diabète"@fr .
+ph:Hypertension a ph:Maladie, owl:NamedIndividual ; rdfs:label "Hypertension"@fr .
+ph:Asthme a ph:Maladie, owl:NamedIndividual ; rdfs:label "Asthme"@fr .
+ph:MedAlpha a ph:Medicament, owl:NamedIndividual ; rdfs:label "Médicament Alpha"@fr ; ph:contientMolecule ph:Alpha ; ph:forme "Comprimé fictif" .
+ph:MedBeta a ph:Medicament, owl:NamedIndividual ; rdfs:label "Médicament Bêta"@fr ; ph:contientMolecule ph:Beta ; ph:forme "Gélule fictive" .
+ph:MedGamma a ph:Medicament, owl:NamedIndividual ; rdfs:label "Médicament Gamma"@fr ; ph:contientMolecule ph:Gamma ; ph:forme "Solution fictive" .
+ph:TraitementA a ph:Traitement, owl:NamedIndividual ; rdfs:label "Protocole A (fictif)"@fr ; ph:traiteMaladie ph:Diabete ; ph:inclutMedicament ph:MedAlpha ; ph:posologie "Schéma pédagogique A, sans dose médicale" .
+ph:TraitementB a ph:Traitement, owl:NamedIndividual ; rdfs:label "Protocole B (fictif)"@fr ; ph:traiteMaladie ph:Hypertension ; ph:inclutMedicament ph:MedBeta ; ph:posologie "Schéma pédagogique B, sans dose médicale" .
+ph:AssuranceA a ph:Assurance, owl:NamedIndividual ; rdfs:label "Assurance A (fictive)"@fr ; ph:couverture "80.0"^^xsd:decimal .
+ph:AssuranceB a ph:Assurance, owl:NamedIndividual ; rdfs:label "Assurance B (fictive)"@fr ; ph:couverture "60.0"^^xsd:decimal .
+ph:Voiture1 a ph:Vehicule, owl:NamedIndividual ; rdfs:label "Voiture 1"@fr ; ph:marque "Modèle A fictif" .
+ph:Voiture2 a ph:Vehicule, owl:NamedIndividual ; rdfs:label "Voiture 2"@fr ; ph:marque "Modèle B fictif" .
+ph:Voiture3 a ph:Vehicule, owl:NamedIndividual ; rdfs:label "Voiture 3"@fr ; ph:marque "Modèle C fictif" .
+
+ph:Nour a ph:Patient, owl:NamedIndividual ; rdfs:label "Nour (patient fictif)"@fr ; ph:age 67 ; ph:sexe "F" ; ph:suitPar ph:Ahmed, ph:Leila ; ph:souffreDe ph:Diabete, ph:Hypertension ; ph:prendMedicament ph:MedAlpha, ph:MedBeta ; ph:possedeVehicule ph:Voiture1 ; ph:assurePar ph:AssuranceA ; ph:accueilliDans ph:HopitalCarthage .
+ph:Youssef a ph:Patient, owl:NamedIndividual ; rdfs:label "Youssef (patient fictif)"@fr ; ph:age 72 ; ph:sexe "M" ; ph:suitPar ph:Ahmed ; ph:souffreDe ph:Diabete ; ph:prendMedicament ph:MedAlpha ; ph:assurePar ph:AssuranceB ; ph:accueilliDans ph:HopitalCarthage .
+ph:Ines a ph:Patient, owl:NamedIndividual ; rdfs:label "Inès (patient fictif)"@fr ; ph:age 35 ; ph:sexe "F" ; ph:suitPar ph:Sami ; ph:souffreDe ph:Asthme ; ph:prendMedicament ph:MedGamma ; ph:possedeVehicule ph:Voiture2 ; ph:accueilliDans ph:HopitalJasmin .
+ph:Omar a ph:Patient, owl:NamedIndividual ; rdfs:label "Omar (patient fictif)"@fr ; ph:age 58 ; ph:sexe "M" ; ph:suitPar ph:Leila ; ph:souffreDe ph:Hypertension ; ph:prendMedicament ph:MedBeta ; ph:assurePar ph:AssuranceA ; ph:accueilliDans ph:HopitalCarthage .
+ph:Salma a ph:Patient, owl:NamedIndividual ; rdfs:label "Salma (patient fictif)"@fr ; ph:age 24 ; ph:sexe "F" ; ph:suitPar ph:Sami ; ph:souffreDe ph:Asthme ; ph:possedeVehicule ph:Voiture3 ; ph:accueilliDans ph:HopitalJasmin .
+ph:Aziz a ph:Patient, owl:NamedIndividual ; rdfs:label "Aziz (patient fictif)"@fr ; ph:age 63 ; ph:sexe "M" ; ph:suitPar ph:Ahmed ; ph:souffreDe ph:Diabete ; ph:prendMedicament ph:MedAlpha ; ph:accueilliDans ph:HopitalCarthage .
+ph:Meriem a ph:Patient, owl:NamedIndividual ; rdfs:label "Meriem (patient fictif)"@fr ; ph:age 46 ; ph:sexe "F" ; ph:suitPar ph:Leila ; ph:souffreDe ph:Hypertension ; ph:accueilliDans ph:HopitalCarthage .
+ph:Adam a ph:Patient, owl:NamedIndividual ; rdfs:label "Adam (patient fictif)"@fr ; ph:age 19 ; ph:sexe "M" ; ph:suitPar ph:Sami ; ph:accueilliDans ph:HopitalJasmin .
+
+ph:Consultation1 a ph:Consultation, owl:NamedIndividual ; rdfs:label "Consultation Nour / Ahmed"@fr ; ph:concernePatient ph:Nour ; ph:realiseePar ph:Ahmed ; ph:diagnostique ph:Diabete ; ph:proposeTraitement ph:TraitementA ; ph:dateConsultation "2026-10-01"^^xsd:date ; ph:cout "70"^^xsd:decimal .
+ph:Consultation2 a ph:Consultation, owl:NamedIndividual ; rdfs:label "Consultation Nour / Leïla"@fr ; ph:concernePatient ph:Nour ; ph:realiseePar ph:Leila ; ph:diagnostique ph:Diabete ; ph:proposeTraitement ph:TraitementA ; ph:dateConsultation "2026-09-12"^^xsd:date ; ph:cout "85"^^xsd:decimal .
+ph:Consultation3 a ph:Consultation, owl:NamedIndividual ; rdfs:label "Consultation Youssef / Ahmed"@fr ; ph:concernePatient ph:Youssef ; ph:realiseePar ph:Ahmed ; ph:diagnostique ph:Diabete ; ph:dateConsultation "2026-08-20"^^xsd:date ; ph:cout "70"^^xsd:decimal .
+ph:Consultation4 a ph:Consultation, owl:NamedIndividual ; rdfs:label "Consultation Inès / Sami"@fr ; ph:concernePatient ph:Ines ; ph:realiseePar ph:Sami ; ph:diagnostique ph:Asthme ; ph:dateConsultation "2026-07-05"^^xsd:date ; ph:cout "50"^^xsd:decimal .
+ph:Consultation5 a ph:Consultation, owl:NamedIndividual ; rdfs:label "Consultation Omar / Leïla"@fr ; ph:concernePatient ph:Omar ; ph:realiseePar ph:Leila ; ph:diagnostique ph:Hypertension ; ph:proposeTraitement ph:TraitementB ; ph:dateConsultation "2026-03-15"^^xsd:date ; ph:cout "85"^^xsd:decimal .
+ph:Consultation6 a ph:Consultation, owl:NamedIndividual ; rdfs:label "Consultation Aziz / Ahmed"@fr ; ph:concernePatient ph:Aziz ; ph:realiseePar ph:Ahmed ; ph:diagnostique ph:Diabete ; ph:dateConsultation "2026-10-20"^^xsd:date ; ph:cout "70"^^xsd:decimal .
+ph:Consultation7 a ph:Consultation, owl:NamedIndividual ; rdfs:label "Consultation Meriem / Leïla"@fr ; ph:concernePatient ph:Meriem ; ph:realiseePar ph:Leila ; ph:diagnostique ph:Hypertension ; ph:dateConsultation "2026-06-10"^^xsd:date ; ph:cout "85"^^xsd:decimal .
+ph:Consultation8 a ph:Consultation, owl:NamedIndividual ; rdfs:label "Consultation Salma / Sami"@fr ; ph:concernePatient ph:Salma ; ph:realiseePar ph:Sami ; ph:diagnostique ph:Asthme ; ph:dateConsultation "2025-12-03"^^xsd:date ; ph:cout "50"^^xsd:decimal .
+ph:Prescription1 a ph:Prescription, owl:NamedIndividual ; rdfs:label "Prescription Nour octobre"@fr ; ph:prescritA ph:Nour ; ph:prescritPar ph:Ahmed ; ph:prescritMedicament ph:MedAlpha, ph:MedBeta ; ph:issueConsultation ph:Consultation1 ; ph:datePrescription "2026-10-01"^^xsd:date ; ph:dureeJours 30 .
+ph:Prescription2 a ph:Prescription, owl:NamedIndividual ; rdfs:label "Prescription Youssef août"@fr ; ph:prescritA ph:Youssef ; ph:prescritPar ph:Ahmed ; ph:prescritMedicament ph:MedAlpha ; ph:issueConsultation ph:Consultation3 ; ph:datePrescription "2026-08-20"^^xsd:date ; ph:dureeJours 60 .
+ph:Prescription3 a ph:Prescription, owl:NamedIndividual ; rdfs:label "Prescription Inès juillet"@fr ; ph:prescritA ph:Ines ; ph:prescritPar ph:Sami ; ph:prescritMedicament ph:MedGamma ; ph:issueConsultation ph:Consultation4 ; ph:datePrescription "2026-07-05"^^xsd:date ; ph:dureeJours 15 .
+ph:Prescription4 a ph:Prescription, owl:NamedIndividual ; rdfs:label "Prescription Omar mars"@fr ; ph:prescritA ph:Omar ; ph:prescritPar ph:Leila ; ph:prescritMedicament ph:MedBeta ; ph:issueConsultation ph:Consultation5 ; ph:datePrescription "2026-03-15"^^xsd:date ; ph:dureeJours 30 .
+ph:Prescription5 a ph:Prescription, owl:NamedIndividual ; rdfs:label "Prescription Salma décembre"@fr ; ph:prescritA ph:Salma ; ph:prescritPar ph:Sami ; ph:prescritMedicament ph:MedGamma ; ph:issueConsultation ph:Consultation8 ; ph:datePrescription "2025-12-03"^^xsd:date ; ph:dureeJours 10 .
+ph:Rdv1 a ph:RendezVous, owl:NamedIndividual ; rdfs:label "Rendez-vous Nour"@fr ; ph:rdvPatient ph:Nour ; ph:rdvMedecin ph:Ahmed ; ph:dateRdv "2026-10-28"^^xsd:date ; ph:statutRdv "Planifié" .
+ph:Rdv2 a ph:RendezVous, owl:NamedIndividual ; rdfs:label "Rendez-vous Adam"@fr ; ph:rdvPatient ph:Adam ; ph:rdvMedecin ph:Sami ; ph:dateRdv "2026-10-27"^^xsd:date ; ph:statutRdv "Planifié" .

@@ -1,0 +1,49 @@
+# Exécuter chaque requête de consultation séparément dans la console.
+PREFIX ph: <https://pharmagraph.example/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?nom ?formule WHERE {
+  ?m a ph:Molecule ; rdfs:label ?nom ; ph:formule ?formule .
+} ORDER BY ?nom
+
+# Effets secondaires d’Alpha
+PREFIX ph: <https://pharmagraph.example/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?nom WHERE { ph:Alpha ph:aEffetSecondaire ?effet . ?effet rdfs:label ?nom . }
+
+# Filtrage des données cliniques
+PREFIX ph: <https://pharmagraph.example/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?nom ?phase ?participants WHERE {
+  ?essai a ph:EssaiClinique ; rdfs:label ?nom ; ph:phase ?phase ; ph:participants ?participants .
+  FILTER (?phase >= 2)
+} ORDER BY DESC(?participants)
+
+# Agrégation
+PREFIX ph: <https://pharmagraph.example/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?nom (COUNT(?effet) AS ?nombreEffets) WHERE {
+  ?m a ph:Molecule ; rdfs:label ?nom . OPTIONAL { ?m ph:aEffetSecondaire ?effet }
+} GROUP BY ?nom ORDER BY DESC(?nombreEffets)
+
+# Recherche textuelle
+PREFIX ph: <https://pharmagraph.example/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?nom WHERE { ?m a ph:Molecule ; rdfs:label ?nom . FILTER(CONTAINS(LCASE(STR(?nom)), "alpha")) }
+
+# Vérification d’une relation
+PREFIX ph: <https://pharmagraph.example/ontology#>
+ASK { ph:Alpha ph:aContreIndication ph:Grossesse }
+
+# Écriture : exemples pour RDFLib / triplestore, pas la console en lecture seule.
+# Ces opérations sont exécutées par les endpoints CRUD de l’administration.
+PREFIX ph: <https://pharmagraph.example/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+INSERT DATA { ph:Omega a ph:Molecule ; rdfs:label "Molécule Oméga"@fr ; ph:formule "C10H14O2" . }
+
+PREFIX ph: <https://pharmagraph.example/ontology#>
+DELETE WHERE { ph:Omega ph:formule ?f };
+INSERT DATA { <https://pharmagraph.example/ontology#Omega> <https://pharmagraph.example/ontology#formule> "C11H16O2" . }
+
+PREFIX ph: <https://pharmagraph.example/ontology#>
+DELETE WHERE { ph:Omega ?p ?o };
+DELETE WHERE { ?s ?p <https://pharmagraph.example/ontology#Omega> }

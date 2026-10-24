@@ -1,0 +1,11 @@
+.deps/
+.venv/
+__pycache__/
+.pytest_cache/
+.test-tmp*/
+tools/
+data/backups/
+.env
+.streamlit/secrets.toml
+data/exports/
+data/live.ttl
