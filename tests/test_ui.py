@@ -5,21 +5,26 @@ import pytest
 from fastapi.testclient import TestClient
 from streamlit.testing.v1 import AppTest
 
-@pytest.mark.parametrize('page',['Accueil','Dossiers patients','Parcours de soins','Explorateur IA','Tableau de bord','Données & CRUD','Relations','Ontologie','Console SPARQL','Qualité des données'])
-def test_streamlit_pages(tmp_path,monkeypatch,page):
+@pytest.mark.parametrize('page',['Accueil','Dossiers patients','Parcours de soins','Explorateur IA','Tableau de bord','Données & CRUD','Relations','Ontologie','Console SPARQL','Qualité des données','Mon équipe'])
+def test_streamlit_pages(tmp_path,monkeypatch,page,authenticated):
     monkeypatch.setenv('PHARMAGRAPH_DATA',str(tmp_path/'live.ttl'))
     import backend.app as module
     importlib.reload(module)
     import ui.client
     import ui.care
+    import ui.auth
     with TestClient(module.app) as client:
+        session=authenticated(client)
         def request(path,method='GET',body=None,params=None):
             response=client.request(method,'/api/'+path,json=body,params=params)
             if response.status_code>=400:raise ValueError(response.text)
             return response.content if path.startswith('ontology') else response.json()
         monkeypatch.setattr(ui.client,'request',request)
         monkeypatch.setattr(ui.care,'request',request)
+        monkeypatch.setattr(ui.auth,'request',request)
         app=AppTest.from_file(str(Path(__file__).resolve().parents[1]/'ui/app.py'),default_timeout=25)
+        app.session_state['auth_token']=session['token']
+        app.session_state['auth_user']=session['user']
         app.run()
         assert not app.exception,[e.message for e in app.exception]
         assert not app.error,[e.value for e in app.error]
@@ -30,20 +35,26 @@ def test_streamlit_pages(tmp_path,monkeypatch,page):
         assert not app.exception,[e.message for e in app.exception]
         assert not app.error,[e.value for e in app.error]
 
-def test_streamlit_nlp_submission(tmp_path,monkeypatch):
+def test_streamlit_nlp_submission(tmp_path,monkeypatch,authenticated):
     monkeypatch.setenv('PHARMAGRAPH_DATA',str(tmp_path/'live.ttl'))
     import backend.app as module
     importlib.reload(module)
     import ui.client
     import ui.care
+    import ui.auth
     with TestClient(module.app) as client:
+        session=authenticated(client)
         def request(path,method='GET',body=None,params=None):
             response=client.request(method,'/api/'+path,json=body,params=params)
             if response.status_code>=400:raise ValueError(response.text)
             return response.json()
         monkeypatch.setattr(ui.client,'request',request)
         monkeypatch.setattr(ui.care,'request',request)
-        app=AppTest.from_file(str(Path(__file__).resolve().parents[1]/'ui/app.py'),default_timeout=25).run()
+        monkeypatch.setattr(ui.auth,'request',request)
+        app=AppTest.from_file(str(Path(__file__).resolve().parents[1]/'ui/app.py'),default_timeout=25)
+        app.session_state['auth_token']=session['token']
+        app.session_state['auth_user']=session['user']
+        app.run()
         app.sidebar.radio[0].set_value('Explorateur IA').run()
         app.text_area[0].set_value('Quels patients ont consulté plusieurs médecins pour une même maladie ?')
         next(b for b in app.button if b.label=='Explorer le graphe ↗').click().run()

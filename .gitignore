@@ -9,3 +9,6 @@ data/backups/
 .streamlit/secrets.toml
 data/exports/
 data/live.ttl
+data/*.sqlite3
+data/*.sqlite3-*
+output/*.png

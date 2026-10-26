@@ -2,8 +2,10 @@ const $ = s => document.querySelector(s);
 const escapeHtml = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let molecules = [], catalogue = {}, editing = false;
 async function api(path, options={}) {
-  const response = await fetch('/api/'+path, {headers:{'Content-Type':'application/json'},...options});
+  const token=sessionStorage.getItem('pharma_token');
+  const response = await fetch('/api/'+path, {...options,headers:{'Content-Type':'application/json',...(token?{'Authorization':'Bearer '+token}:{}),...(options.headers||{})}});
   const data = await response.json();
+  if(response.status===401 && path!=='auth/login')showLogin();
   if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail));
   return data;
 }
@@ -54,4 +56,20 @@ $('#molecule-form').onsubmit=async e=>{
   e.preventDefault();const body={id:$('#mol-id').value,nom:$('#mol-name').value,formule:$('#mol-formula').value,effets:Array.from($('#mol-effects').selectedOptions,o=>o.value),contre_indications:Array.from($('#mol-contra').selectedOptions,o=>o.value)};
   try{const data=await api('molecules'+(editing?'/'+encodeURIComponent(body.id):''),{method:editing?'PUT':'POST',body:JSON.stringify(body)});$('#crud-query').textContent=data.sparql;resetForm();await refresh();$('#status').textContent='Modification enregistrée dans le graphe RDF.';}catch(error){report(error);}
 };
-refresh().catch(report);
+function showLogin(){
+  sessionStorage.removeItem('pharma_token');
+  delete document.body.dataset.role;
+  $('#login-screen').hidden=false;
+}
+async function startSession(){
+  if(!sessionStorage.getItem('pharma_token'))return showLogin();
+  try{const user=await api('auth/me');document.body.dataset.role=user.role;$('#login-screen').hidden=true;$('#legacy-user').textContent=user.name;await refresh();}
+  catch(error){showLogin();$('#login-message').textContent=error.message;}
+}
+$('#legacy-login').onsubmit=async event=>{
+  event.preventDefault();$('#login-message').textContent='';
+  try{const session=await api('auth/login',{method:'POST',body:JSON.stringify({email:$('#legacy-email').value,password:$('#legacy-password').value})});sessionStorage.setItem('pharma_token',session.token);$('#legacy-password').value='';await startSession();}
+  catch(error){$('#login-message').textContent=error.message;}
+};
+$('#legacy-logout').onclick=async()=>{try{await api('auth/logout',{method:'POST'});}finally{showLogin();}};
+startSession();

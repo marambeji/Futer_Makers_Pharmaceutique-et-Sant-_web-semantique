@@ -12,27 +12,12 @@ import plotly.graph_objects as go
 import streamlit as st
 from ui.client import request
 from ui import care
+from ui import theme, auth
 
 st.set_page_config(page_title='PharmaGraph · Le fil des soins',page_icon='✳',layout='wide',initial_sidebar_state='expanded')
-st.markdown('''<style>
-.block-container{padding-top:2.6rem;max-width:1450px}h1{letter-spacing:-1.4px;font-weight:750}h2{letter-spacing:-.6px}
-[data-testid="stSidebar"]{border-right:1px solid #dce5d9;background:white}
-[data-testid="stMetric"]{border:1px solid #dce5d9;border-radius:12px;padding:18px;background:white}
-[data-testid="stForm"]{background:white;border-radius:12px;border:1px solid #dce5d9}
-.kicker{color:#648570;font-size:11px;letter-spacing:2px;font-weight:700}.hero{background:#e9f1e5;border:1px solid #d8e4d1;border-radius:14px;padding:22px 26px;margin:8px 0 24px}
-.hero b{font-size:20px}.hero p{color:#6a7d6f;margin:8px 0 0;font-size:13px}
-.welcome-banner{background:#e8efe2;border:1px solid #d9e4d2;border-radius:18px;padding:32px 38px;margin:8px 0 25px;position:relative;overflow:hidden}
-.welcome-banner:after{content:'✳';position:absolute;right:24px;top:10px;font-size:170px;line-height:1;color:#d2dfc6;opacity:.5;pointer-events:none}
-.welcome-banner h2{font-size:32px;max-width:620px;position:relative;z-index:1;margin:12px 0;font-weight:750;letter-spacing:-1px}
-.welcome-banner p{font-size:15px;line-height:1.8;max-width:680px;color:#5d7563;position:relative;z-index:1}.welcome-note{font-size:12px;margin-top:24px;color:#758769}
-.small-label{font-size:10px;letter-spacing:1.8px;font-weight:700;color:#6a8264}
-.story-step{display:flex;gap:16px;margin:21px 0;align-items:flex-start}.story-step>span{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:32px;height:32px;border-radius:50%;background:#eff4e9;border:1px solid #dde7d5;font-size:11px;color:#59815e}.story-step b{font-size:14px;font-weight:650}.story-step p{font-size:13px;color:#7b8779;margin:5px 0;line-height:1.6}
-.patient-banner{display:flex;align-items:center;gap:22px;border-radius:16px;padding:24px 28px;background:#eef3e9;border:1px solid #dce5d6;margin:24px 0 14px}.patient-banner h2{margin:4px 0;font-size:28px}.patient-banner p{margin:0;font-size:13px;color:#6c7b65}.avatar{width:64px;height:64px;display:flex;align-items:center;justify-content:center;background:#d6e4cb;color:#46633d;font-size:28px;border-radius:50%;flex-shrink:0}
-.history-event{position:relative;display:flex;gap:18px;padding:0 0 28px;margin-left:8px;border-left:1px solid #dbe4d5}.history-dot{width:11px;height:11px;flex-shrink:0;background:#87a779;border:3px solid #edf3e8;border-radius:50%;margin-left:-6px;margin-top:5px}.history-event p{font-size:13px;line-height:1.7;color:#75816e;margin:5px 0}.history-event b{font-size:14px}
-.journey-context{display:flex;gap:14px;justify-content:space-between;align-items:center;background:#edf2e8;border:1px solid #dce5d5;border-radius:10px;padding:15px 20px;margin:20px 0}.journey-context b{font-size:14px}.journey-context span{color:#73806b;font-size:11px}.journey-progress{display:flex;gap:12px;margin:26px 0 10px}.journey-step{display:flex;align-items:center;gap:9px;flex:1;color:#9aa18f}.journey-step span{width:27px;height:27px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid #d9e0d2;font-size:11px;flex-shrink:0}.journey-step b{font-size:11px;font-weight:500}.journey-step.current{color:#235b42}.journey-step.current span{background:#235b42;color:white;border-color:#235b42}.journey-step.done{color:#728d5e}.completed-banner{background:#e8f0e1;border-radius:16px;padding:28px 32px;border:1px solid #d6e3cb;margin:20px 0}.completed-banner h2{margin:12px 0}.completed-banner p{color:#6f7f65;line-height:1.8;font-size:14px}
-[data-testid="stVerticalBlockBorderWrapper"]{border-radius:14px}button[kind="primary"]{border-radius:8px}h3{font-size:20px!important}p{line-height:1.7}
-@media(max-width:700px){.welcome-banner{padding:23px}.welcome-banner h2{font-size:26px}.welcome-banner:after{right:4px;font-size:120px;opacity:.3}.journey-context{align-items:flex-start;flex-direction:column;gap:6px}.journey-progress{gap:5px}.journey-step{flex-direction:column;align-items:flex-start;gap:7px}.journey-step b{font-size:10px}.patient-banner{padding:18px;gap:14px}.patient-banner h2{font-size:24px}}
-</style>''',unsafe_allow_html=True)
+theme.render()
+current_user=auth.require_login()
+can_edit=current_user['role'] in ('admin','medecin')
 
 def result_table(result,key):
     st.caption(f"{len(result['rows'])} résultat(s)"+(' · limite de 1 000 lignes atteinte' if result.get('truncated') else ''))
@@ -56,23 +41,31 @@ pending_patient=st.session_state.pop('pending_patient',None)
 if pending_patient:
     for key in ['selected_patient','dossier_patient','care_patient']:st.session_state[key]=pending_patient
 main_pages=['Accueil','Dossiers patients','Parcours de soins','Explorateur IA','Tableau de bord','Atelier sémantique']
+if not can_edit:main_pages.remove('Parcours de soins')
+if current_user['role']=='medecin':main_pages.remove('Atelier sémantique')
+if current_user['role']=='admin':main_pages.append('Mon équipe')
+if st.session_state.get('main_navigation','Accueil') not in main_pages:
+    st.session_state['main_navigation']='Accueil'
 nav_labels={'Accueil':'Accueil','Dossiers patients':'Les patients','Parcours de soins':'Nouvelle consultation','Explorateur IA':'Poser une question','Tableau de bord':'Vue d’ensemble','Atelier sémantique':'Atelier sémantique'}
+nav_labels['Mon équipe']='Mon équipe'
 with st.sidebar:
-    st.markdown('## ✳ PharmaGraph')
-    st.caption('LE FIL DES SOINS')
-    st.divider()
+    st.markdown('<div class="pg-brand"><div class="pg-logo">✳</div><div><b>PharmaGraph</b><small>LE FIL DES SOINS</small></div></div>',unsafe_allow_html=True)
     page=st.radio('VOTRE ESPACE',main_pages,key='main_navigation',format_func=lambda value:nav_labels[value],label_visibility='visible')
     if page=='Atelier sémantique':
         st.caption('Pour comprendre le modèle et préparer la soutenance.')
-        page=st.selectbox('Choisir un outil',['Ontologie','Console SPARQL','Données & CRUD','Relations','Qualité des données'])
+        tools=['Ontologie','Console SPARQL','Qualité des données']
+        if current_user['role']=='admin':tools=['Ontologie','Console SPARQL','Données & CRUD','Relations','Qualité des données']
+        page=st.selectbox('Choisir un outil',tools)
     st.divider()
     st.caption('Dossiers fictifs · Espace pédagogique')
     with st.expander('À propos du projet'):
         st.caption('Les informations sont reliées par une ontologie. Le moteur de recherche utilise NLTK et SPARQL, sans service LLM externe.')
         st.link_button('Interface pharmaceutique initiale','http://127.0.0.1:8000')
+    auth.account_menu(current_user)
 
-st.markdown('<div class="kicker">PHARMAGRAPH · LE FIL DES SOINS</div>',unsafe_allow_html=True)
-st.title({'Accueil':'Bienvenue dans votre espace.','Dossiers patients':'Derrière chaque dossier, une personne.','Parcours de soins':'Préparons la suite du parcours.','Explorateur IA':'Une question sur vos dossiers ?','Tableau de bord':'L’activité, en un regard.','Données & CRUD':'Gérer les données du projet.','Relations':'Comprendre et ajuster les liens.','Ontologie':'Le modèle qui relie les informations.','Console SPARQL':'Explorer les données en profondeur.','Qualité des données':'Vérifier la cohérence des dossiers.'}[page])
+st.markdown('<div class="page-meta"><span>Mon espace &nbsp; / &nbsp; <b>'+html.escape(nav_labels.get(page,page))+'</b></span><span class="role-pill">'+auth.ROLES[current_user['role']]+'</span></div>',unsafe_allow_html=True)
+titles={'Accueil':'Bonjour, '+current_user['name'].split()[0]+' 👋','Dossiers patients':'Les patients, au cœur du parcours.','Parcours de soins':'Une consultation, un parcours continu.','Explorateur IA':'Et si vous posiez simplement la question ?','Tableau de bord':'Votre activité en perspective.','Données & CRUD':'Un espace pour enrichir les données.','Relations':'Chaque lien raconte quelque chose.','Ontologie':'Explorez le modèle de connaissances.','Console SPARQL':'La donnée, sous tous ses angles.','Qualité des données':'Des données plus cohérentes.','Mon équipe':'Une équipe, des accès adaptés.'}
+st.title(titles[page])
 st.caption('Démonstration universitaire · Données et identités entièrement fictives')
 notice=st.session_state.pop('care_notice',None)
 if notice:st.success(notice)
@@ -90,6 +83,8 @@ elif page=='Dossiers patients':
     care.render(care.dossiers)
 elif page=='Parcours de soins':
     care.render(care.journey)
+elif page=='Mon équipe':
+    auth.team()
 elif page=='Explorateur IA':
     left,right=st.columns([2.2,1])
     with left:
@@ -117,7 +112,7 @@ elif page=='Explorateur IA':
             with st.expander('Trace du traitement NLP'):
                 st.json({key:answer.get(key) for key in ['intent','tokens','stems','entities','schema_properties','method']})
     with right:
-        with st.container(border=True):
+        with theme.card():
             st.markdown('### Pour commencer simplement')
             st.write('Essayez « Affiche les patients suivis par le docteur Ahmed ». Vous retrouverez les personnes qui lui sont associées dans les dossiers.')
             st.caption('Utilisez les noms présents dans le projet. Si une question n’est pas comprise, choisissez un exemple et adaptez-le.')
@@ -143,7 +138,7 @@ elif page=='Tableau de bord':
     columns=st.columns(2)
     for index,(key,title,x,kind) in enumerate(charts):
         with columns[index%2]:
-            with st.container(border=True):
+            with theme.card():
                 st.subheader(title)
                 data=stats['datasets'][key]
                 if data['rows']:
@@ -203,7 +198,7 @@ elif page=='Données & CRUD':
                 st.session_state['last_mutation']=result['sparql']
             except ValueError as error:st.error(str(error))
     with right:
-        with st.container(border=True):
+        with theme.card():
             st.subheader('Supprimer un individu')
             if records:
                 doomed=st.selectbox('Individu à supprimer',[r['id'] for r in records],key='delete_'+cls)

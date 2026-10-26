@@ -1,5 +1,7 @@
 # PharmaGraph — Web sémantique
 
+**Nouveau design et accès par rôle :** inscription Médecin ou Chercheur, connexion et activation des comptes dans **Mon équipe**. L’administrateur initial se configure localement avec `python setup_admin.py`, hors de l’inscription publique. Voir [le guide des accès et du design](docs/ACCES_ET_DESIGN.md). Aucun mot de passe par défaut.
+
 **Parcours humain :** l’accueil, les dossiers patients et la consultation guidée racontent maintenant une histoire commune. Voir [le scénario complet de démonstration](docs/SCENARIO_PARCOURS.md) : dossier → consultation → prescription → suivi → recherche → statistiques.
 
 **Version clinique étendue :** interface Python Streamlit, 19 classes, CRUD général, relations, dashboard Plotly, NLP français/anglais et SPARQL complexe. Consulter [l’architecture et le lancement de la version complète](docs/ARCHITECTURE_V2.md). Les sections ci-dessous décrivent aussi l’interface pharmaceutique initiale conservée.

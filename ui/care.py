@@ -6,6 +6,10 @@ import uuid
 import pandas as pd
 import streamlit as st
 from ui.client import request
+from ui.theme import illustration, card
+
+def can_write():
+    return st.session_state.get('auth_user',{}).get('role') in ('admin','medecin')
 
 def name(value):
     return re.sub(r'\s*\((?:patient )?ficti[fv]e?\)', '', str(value),flags=re.I).strip()
@@ -55,14 +59,14 @@ def patient_selector(key):
 
 def home():
     summary=request('care/overview')
-    st.markdown('''<div class="welcome-banner"><span class="small-label">UN ESPACE POUR RELIER LES SOINS</span><h2>Chaque dossier raconte un parcours.</h2><p>Retrouvez les bonnes informations, préparez une consultation et gardez le fil du suivi, du premier accueil au prochain rendez-vous.</p><div class="welcome-note">Des personnes, une équipe de soins, une histoire commune.</div></div>''',unsafe_allow_html=True)
+    st.markdown('<div class="welcome-banner"><div><span class="small-label">PRENDRE SOIN, C’EST AUSSI RELIER.</span><h2>La bonne information.<br>Au bon moment.</h2><p>Des dossiers connectés, une équipe réunie et une vision claire de chaque parcours. Retrouvez ici ce qui compte pour votre journée.</p><div class="welcome-note">✧ &nbsp; Votre espace pharmaceutique et clinique</div></div><div class="hero-art">'+illustration()+'</div></div>',unsafe_allow_html=True)
     cols=st.columns(3)
     for col,(key,title) in zip(cols,[('patients','Dossiers patients'),('medecins','Médecins dans l’équipe'),('consultations','Consultations enregistrées')]):
         col.metric(title,summary['counts'][key])
     st.write('')
     main,side=st.columns([1.65,1],gap='large')
     with main:
-        with st.container(border=True):
+        with card():
             st.markdown('<div class="small-label">LE PARCOURS GUIDÉ</div>',unsafe_allow_html=True)
             patients=request('entities/Patient')
             patient=next((p for p in patients if p['id']=='Nour'),patients[0] if patients else None)
@@ -83,13 +87,13 @@ def home():
                 st.subheader('Tout commence par un premier dossier.')
                 st.button('Accueillir un patient →',type='primary',on_click=navigate,args=('Dossiers patients',))
     with side:
-        with st.container(border=True):
+        with card():
             st.markdown('<div class="small-label">UNE ACTION, UN POINT DE DÉPART</div>',unsafe_allow_html=True)
             st.subheader('De quoi avez-vous besoin ?')
             st.button('Retrouver un patient',on_click=navigate,args=('Dossiers patients',),width='stretch')
-            st.button('Préparer une consultation',on_click=navigate,args=('Parcours de soins',),width='stretch')
+            st.button('Préparer une consultation',on_click=navigate,args=('Parcours de soins',),width='stretch',disabled=not can_write(),help='Réservé aux médecins et administrateurs.')
             st.button('Poser une question sur les dossiers',on_click=navigate,args=('Explorateur IA',),width='stretch')
-        with st.container(border=True):
+        with card():
             st.markdown('<div class="small-label">LES PROCHAINS RENDEZ-VOUS</div>',unsafe_allow_html=True)
             for row in summary['appointments']:
                 st.markdown('**'+name(row['patient'])+'** · '+human_date(row['date']))
@@ -99,6 +103,7 @@ def home():
         st.caption('Espace de démonstration : tous les dossiers et protocoles sont fictifs.')
 
 def new_patient():
+    if not can_write():return
     with st.expander('Accueillir un nouveau patient'):
         st.write('Quelques informations pour ouvrir un dossier. Vous pourrez le compléter ensuite.')
         doctors=request('entities/Medecin');hospitals=request('entities/Hopital')
@@ -136,25 +141,25 @@ def dossiers():
     st.markdown(f'<div class="patient-banner"><div class="avatar">{text(patient_name[:1])}</div><div><span class="small-label">LE DOSSIER DE</span><h2>{text(patient_name)}</h2><p>{text(age)} ans · {text(hospitals)}</p></div></div>',unsafe_allow_html=True)
     left,right=st.columns([2,1])
     left.caption('Ce dossier réunit les informations enregistrées et les liens entre les différents intervenants.')
-    right.button('Préparer sa consultation →',type='primary',on_click=start_visit,args=(selected,),width='stretch')
+    right.button('Préparer sa consultation →',type='primary',on_click=start_visit,args=(selected,),width='stretch',disabled=not can_write())
     tabs=st.tabs(['En bref','Consultations & prescriptions','Historique','Médicaments & molécules'])
     with tabs[0]:
         cols=st.columns([1.2,1])
         with cols[0]:
-            with st.container(border=True):
+            with card():
                 st.subheader('Les personnes qui l’accompagnent')
                 for doctor in dossier['doctors']:
                     st.markdown('**'+name(doctor['label'])+'**')
                     st.caption(doctor['specialty']+' · '+joined(doctor['hospitals']))
                 if not dossier['doctors']:st.caption('Aucun médecin référent n’a encore été renseigné.')
-            with st.container(border=True):
+            with card():
                 st.subheader('Ce qui figure dans son dossier')
                 st.write('**Maladies renseignées :** '+joined(dossier['conditions'],'Aucune maladie renseignée'))
                 st.write('**Assurance :** '+joined(dossier['insurance'],'Aucune assurance renseignée'))
                 st.caption('Une information absente du dossier ne signifie pas qu’elle est absente dans la réalité.')
         with cols[1]:
             upcoming=[row for row in dossier['appointments'] if row['date']>=dossier['today'] and row.get('statut')!='Annulé']
-            with st.container(border=True):
+            with card():
                 st.subheader('Le prochain rendez-vous')
                 if upcoming:
                     row=upcoming[0]
@@ -167,7 +172,7 @@ def dossiers():
     with tabs[1]:
         st.subheader('Les consultations')
         for row in dossier['consultations']:
-            with st.container(border=True):
+            with card():
                 st.markdown('**'+human_date(row['date'])+' · '+name(row['medecin'])+'**')
                 if row.get('motif'):st.write(row['motif'])
                 st.caption('Maladies renseignées : '+joined(row['diagnoses'],'Non renseignées'))
@@ -175,7 +180,7 @@ def dossiers():
         if not dossier['consultations']:st.info('Aucune consultation enregistrée pour ce patient.')
         st.subheader('Les prescriptions enregistrées')
         for row in dossier['prescriptions']:
-            with st.container(border=True):
+            with card():
                 st.markdown('**'+human_date(row['date'])+' · '+name(row['medecin'])+'**')
                 st.write(joined(row['medicines']))
                 if row.get('duree'):st.caption('Durée enregistrée : '+row['duree']+' jours')
@@ -189,7 +194,7 @@ def dossiers():
             st.markdown(f'<div class="history-event"><div class="history-dot"></div><div><b>{text(title)}</b><p>{text(description)}</p></div></div>',unsafe_allow_html=True)
         if not dossier['timeline']:st.caption('L’historique commencera avec la première consultation.')
     with tabs[3]:
-        st.write('Retrouver les liens entre les médicaments du dossier, leurs molécules et les informations pharmaceutiques du jeu de démonstration.')
+        st.write('Retrouvez les molécules associées aux médicaments du dossier et les informations qui les accompagnent.')
         for med in dossier['medicines']:
             with st.expander(name(med['label'])):
                 st.caption('Prise déclarée dans le dossier' if med['declared_taken'] else 'Présent dans une prescription ; la prise effective n’est pas confirmée')
@@ -207,6 +212,8 @@ def dossiers():
 def set_step(step):st.session_state['care_step']=step
 
 def journey():
+    if not can_write():
+        st.info('La préparation des consultations est réservée aux médecins et administrateurs.');return
     patient_id=patient_selector('care_patient')
     if not patient_id:
         st.button('Ouvrir un premier dossier',on_click=navigate,args=('Dossiers patients',));return
@@ -287,7 +294,7 @@ def journey():
         doctor=request('entities/Medecin/'+draft['doctor'])
         med_names={r['id']:name(r['label']) for r in request('entities/Medicament')}
         condition_names={r['id']:name(r['label']) for r in request('entities/Maladie')}
-        with st.container(border=True):
+        with card():
             st.markdown('**La rencontre**')
             st.write(patient_name+' · '+human_date(draft['date'])+' · '+name(doctor['label']))
             st.write(draft['reason'] or 'Aucun motif ajouté')

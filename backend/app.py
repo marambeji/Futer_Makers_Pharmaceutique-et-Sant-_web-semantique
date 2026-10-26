@@ -2,7 +2,8 @@ from pathlib import Path
 from threading import RLock
 import os
 import re
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -16,6 +17,7 @@ from .quality import audit
 from .queries import QUERIES
 from .clinical_nlp import EXAMPLES
 from .care import patient_file, record_visit, overview as care_overview
+from .auth import Accounts, AuthError, authorize
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -25,7 +27,72 @@ DATA = Path(os.environ.get('PHARMAGRAPH_DATA', str(ROOT / 'data/live.ttl')))
 lock = RLock()
 graph = load_graph(ROOT, DATA)
 app = FastAPI(title='PharmaGraph', description='Démonstration pédagogique sur données fictives', version='1.0')
+accounts=Accounts(os.environ.get('PHARMAGRAPH_AUTH_DB',str(ROOT/'data/accounts.sqlite3')))
+
+@app.middleware('http')
+async def authentication(request: Request, call_next):
+    path=request.url.path
+    public=path in ('/api/auth/status','/api/auth/register','/api/auth/login')
+    if path.startswith('/api/') and not public:
+        try:
+            user=accounts.authenticate(request.headers.get('authorization'))
+            authorize(user,request.method,path)
+            request.state.user=user
+        except AuthError as error:
+            return JSONResponse({'detail':str(error)},status_code=error.status,headers={'Cache-Control':'no-store'})
+    response=await call_next(request)
+    if path.startswith('/api/'):
+        response.headers['Cache-Control']='no-store'
+    response.headers['X-Content-Type-Options']='nosniff'
+    return response
+
 app.mount('/static', StaticFiles(directory=ROOT / 'frontend'), name='static')
+app.mount('/design', StaticFiles(directory=ROOT / 'ui/assets'), name='design')
+
+class Registration(BaseModel):
+    name: str = Field(min_length=2,max_length=100)
+    email: str = Field(min_length=3,max_length=200)
+    password: str = Field(min_length=10,max_length=128)
+    role: str
+
+class Login(BaseModel):
+    email: str = Field(min_length=3,max_length=200)
+    password: str = Field(min_length=1,max_length=128)
+
+class AccountUpdate(BaseModel):
+    role: str
+    active: bool
+
+def auth_operation(operation):
+    try:return operation()
+    except AuthError as error:raise HTTPException(error.status,str(error))
+
+@app.get('/api/auth/status')
+def auth_status():
+    return {'initialized':accounts.initialized()}
+
+@app.post('/api/auth/register',status_code=201)
+def register(body: Registration):
+    return auth_operation(lambda:accounts.register(**body.model_dump()))
+
+@app.post('/api/auth/login')
+def login(body: Login):
+    return auth_operation(lambda:accounts.login(body.email,body.password))
+
+@app.get('/api/auth/me')
+def me(request: Request):return request.state.user
+
+@app.post('/api/auth/logout')
+def logout(request: Request):
+    accounts.logout(request.headers.get('authorization'))
+    return {'ok':True}
+
+@app.get('/api/auth/users')
+def users():return accounts.users()
+
+@app.patch('/api/auth/users/{user_id}')
+def update_account(user_id: str,body: AccountUpdate,request: Request):
+    return auth_operation(lambda:accounts.update(request.state.user,user_id,body.role,body.active))
 
 class Question(BaseModel):
     question: str = Field(min_length=3, max_length=500)
@@ -233,3 +300,18 @@ def get_patient_file(identifier: str):
 @app.post('/api/care/visits',status_code=201)
 def create_visit(body: VisitBody):
     return business(lambda:record_visit(graph,DATA,body.model_dump()))
+
+def openapi_with_authentication():
+    if app.openapi_schema:return app.openapi_schema
+    from fastapi.openapi.utils import get_openapi
+    description=get_openapi(title=app.title,version=app.version,routes=app.routes)
+    description.setdefault('components',{}).setdefault('securitySchemes',{})['BearerAuth']={'type':'http','scheme':'bearer','description':'Jeton retourné par /api/auth/login'}
+    public={'/api/auth/status','/api/auth/register','/api/auth/login'}
+    for path,operations in description['paths'].items():
+        if path.startswith('/api/') and path not in public:
+            for operation in operations.values():
+                if isinstance(operation,dict):operation['security']=[{'BearerAuth':[]}]
+    app.openapi_schema=description
+    return description
+
+app.openapi=openapi_with_authentication

@@ -9,11 +9,13 @@ from backend.engine import execute
 from backend.queries import QUERIES
 
 @pytest.fixture
-def api(tmp_path,monkeypatch):
+def api(tmp_path,monkeypatch,authenticated):
     monkeypatch.setenv('PHARMAGRAPH_DATA',str(tmp_path/'live.ttl'))
     import backend.app as module
     importlib.reload(module)
-    with TestClient(module.app) as client:yield client,module
+    with TestClient(module.app) as client:
+        authenticated(client)
+        yield client,module
 
 @pytest.mark.parametrize('question,names',[
  ('Cite tous les patients.',{'Nour','Youssef','Ines','Omar','Salma','Aziz','Meriem','Adam'}),

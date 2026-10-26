@@ -9,11 +9,13 @@ from backend.store import load_graph
 from streamlit.testing.v1 import AppTest
 
 @pytest.fixture
-def api(tmp_path,monkeypatch):
+def api(tmp_path,monkeypatch,authenticated):
     monkeypatch.setenv('PHARMAGRAPH_DATA',str(tmp_path/'live.ttl'))
     import backend.app as module
     importlib.reload(module)
-    with TestClient(module.app) as client:yield client,module
+    with TestClient(module.app) as client:
+        authenticated(client)
+        yield client,module
 
 def visit(**changes):
     return {'operation_id':'abc123'*4,'patient':'Nour','doctor':'Ahmed','date':'2026-10-23',
@@ -91,13 +93,18 @@ def test_streamlit_complete_journey(api,monkeypatch):
     import ui.client
     # ui.care imports the same request function, so patch both boundaries.
     import ui.care
+    import ui.auth
     def request(path,method='GET',body=None,params=None):
         response=client.request(method,'/api/'+path,json=body,params=params)
         if response.status_code>=400:raise ValueError(response.text)
         return response.content if path.startswith('ontology') else response.json()
     monkeypatch.setattr(ui.client,'request',request)
     monkeypatch.setattr(ui.care,'request',request)
-    app=AppTest.from_file(str(Path(__file__).resolve().parents[1]/'ui/app.py'),default_timeout=25).run()
+    monkeypatch.setattr(ui.auth,'request',request)
+    app=AppTest.from_file(str(Path(__file__).resolve().parents[1]/'ui/app.py'),default_timeout=25)
+    app.session_state['auth_token']=client.auth_session['token']
+    app.session_state['auth_user']=client.auth_session['user']
+    app.run()
     app.sidebar.radio[0].set_value('Parcours de soins').run()
     assert not app.exception,[e.message for e in app.exception]
     assert app.session_state['care_step']==0

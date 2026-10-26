@@ -5,11 +5,12 @@ from rdflib import Graph, RDF, OWL
 from backend.nlp import translate
 
 @pytest.fixture
-def api(tmp_path,monkeypatch):
+def api(tmp_path,monkeypatch,authenticated):
     monkeypatch.setenv('PHARMAGRAPH_DATA',str(tmp_path/'live.ttl'))
     import backend.app as module
     importlib.reload(module)
     with TestClient(module.app) as client:
+        authenticated(client)
         yield client,module
 
 @pytest.mark.parametrize('question,expected',[
